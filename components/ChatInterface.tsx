@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Send, Bot, User, ChefHat, DollarSign } from 'lucide-react'
+import { Send, Bot, User, ChefHat, DollarSign, AlertCircle } from 'lucide-react'
 
 interface Message {
   id: string
@@ -16,13 +16,15 @@ interface ChatInterfaceProps {
   onPriceAnalysis: (analysis: any) => void
   availableIngredients: string[]
   budget: number
+  apiKey: string
 }
 
 export function ChatInterface({ 
   onRecipeSuggestion, 
   onPriceAnalysis, 
   availableIngredients, 
-  budget 
+  budget,
+  apiKey
 }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -37,6 +39,18 @@ export function ChatInterface({
   const [isLoading, setIsLoading] = useState(false)
 
   const simulateAgentResponse = async (userMessage: string) => {
+    if (!apiKey) {
+      const errorMessage: Message = {
+        id: Date.now().toString(),
+        type: 'agent',
+        agent: 'System',
+        content: '⚠️ Configure sua chave da OpenAI primeiro para usar o chat.',
+        timestamp: new Date()
+      }
+      setMessages(prev => [...prev, errorMessage])
+      return
+    }
+
     setIsLoading(true)
     
     // Simula processamento dos agentes
@@ -132,6 +146,12 @@ export function ChatInterface({
         <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
           <Bot className="w-5 h-5 text-primary-600" />
           Chat com os Agentes
+          {!apiKey && (
+            <div className="ml-auto flex items-center gap-1 text-warning-600">
+              <AlertCircle className="w-4 h-4" />
+              <span className="text-xs">API não configurada</span>
+            </div>
+          )}
         </h3>
       </div>
 
@@ -199,13 +219,13 @@ export function ChatInterface({
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Digite sua mensagem..."
+            placeholder={apiKey ? "Digite sua mensagem..." : "Configure a chave OpenAI primeiro..."}
             className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
-            disabled={isLoading}
+            disabled={isLoading || !apiKey}
           />
           <button
             onClick={handleSendMessage}
-            disabled={!inputText.trim() || isLoading}
+            disabled={!inputText.trim() || isLoading || !apiKey}
             className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Send className="w-4 h-4" />
@@ -213,22 +233,24 @@ export function ChatInterface({
         </div>
         
         {/* Quick Actions */}
-        <div className="flex gap-2 mt-2">
-          <button
-            onClick={() => setInputText('Quero fazer um lanche para a Maju')}
-            className="px-3 py-1 bg-gray-100 text-gray-700 rounded text-xs hover:bg-gray-200 transition-colors"
-          >
-            <ChefHat className="w-3 h-3 inline mr-1" />
-            Sugerir receita
-          </button>
-          <button
-            onClick={() => setInputText('Quanto vai custar?')}
-            className="px-3 py-1 bg-gray-100 text-gray-700 rounded text-xs hover:bg-gray-200 transition-colors"
-          >
-            <DollarSign className="w-3 h-3 inline mr-1" />
-            Verificar preços
-          </button>
-        </div>
+        {apiKey && (
+          <div className="flex gap-2 mt-2">
+            <button
+              onClick={() => setInputText('Quero fazer um lanche para a Maju')}
+              className="px-3 py-1 bg-gray-100 text-gray-700 rounded text-xs hover:bg-gray-200 transition-colors"
+            >
+              <ChefHat className="w-3 h-3 inline mr-1" />
+              Sugerir receita
+            </button>
+            <button
+              onClick={() => setInputText('Quanto vai custar?')}
+              className="px-3 py-1 bg-gray-100 text-gray-700 rounded text-xs hover:bg-gray-200 transition-colors"
+            >
+              <DollarSign className="w-3 h-3 inline mr-1" />
+              Verificar preços
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )
