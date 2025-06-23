@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gray-50 text-gray-900;
+  }
+}
+
+@layer components {
+  .agent-card {
+    @apply bg-white rounded-xl shadow-sm border border-gray-200 p-6 transition-all hover:shadow-md;
+  }
+  
+  .agent-active {
+    @apply ring-2 ring-primary-500 shadow-lg;
+  }
+  
+  .agent-inactive {
+    @apply opacity-60 grayscale;
+  }
+  
+  .status-badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+  
+  .status-success {
+    @apply bg-success-50 text-success-600;
+  }
+  
+  .status-warning {
+    @apply bg-warning-50 text-warning-600;
+  }
+  
+  .status-danger {
+    @apply bg-danger-50 text-danger-600;
+  }
+  
+  .status-info {
+    @apply bg-primary-50 text-primary-600;
+  }
+}
